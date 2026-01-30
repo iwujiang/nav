@@ -1,9 +1,8 @@
-name: Build web And Deploy to FTP
+name: Build web by release
 on:
   push:
     branches:
-      - master
-      - main
+      - release
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,26 +25,9 @@ jobs:
         run: |
           npm run build-gh-pages
           cp dist/browser/index.html dist/browser/404.html
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
           folder: dist/browser
-
-      # 新增：部署到 FTP 服务器
-      - name: Deploy to FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ vars.FTP_SERVER }}
-          username: ${{ vars.FTP_USERNAME }}
-          password: ${{ vars.FTP_PASSWORD }}
-          local-dir: ./dist/browser/  # 使用与 GitHub Pages 相同的构建目录
-          server-dir: /  # FTP 服务器目标目录，根据实际情况调整
-          # 可选配置
-          port: 21
-          protocol: ftp
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
